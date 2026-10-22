@@ -2,6 +2,7 @@
 
 <h1 align="center">Hearth</h1>
 <p align="center"><b>Your neighbourhood on a live map.</b><br/>Ask for a hand or lend one: a ladder, a ride, a meal, ten minutes of tech help.</p>
+<p align="center"><a href="docs/Hearth-pitch-deck.pptx">Pitch deck (.pptx)</a></p>
 <p align="center">Built solo for the <a href="https://hackathon.appwrite.io">Appwrite Databases Hackathon</a> (Oct 19–31, 2026) on <b>Appwrite TablesDB</b>.</p>
 
 <p align="center"><img src="docs/screenshot-map.png" alt="Hearth: nearby posts on a live map with the neighbourhood pulse" width="100%" /></p>
