@@ -181,7 +181,9 @@ export function PostDrawer({ postId, livePost, me, origin, bus, onClose, onRequi
           <button className={`btn btn--ghost ${liked ? 'btn--liked' : ''}`} onClick={onHeart} title="Show some love">
             ♥ {post.hearts}
           </button>
-          {isAuthor && (
+          {/* Deletion is allowed until a neighbour engages; after that the thread
+              holds other people's rows, which the author has no rights over. */}
+          {isAuthor && post.status === 'open' && post.replies === 0 && (
             <button
               className="btn btn--ghost btn--danger"
               disabled={!!busy}

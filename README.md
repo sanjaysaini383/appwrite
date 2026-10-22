@@ -24,14 +24,14 @@ Hearth is built to use as much of **Appwrite TablesDB** as a real product would,
 | **Full-text index** | Title search uses `Query.search('title', …)` on a `fulltext` index. |
 | **Enums, varchar, text, datetime, integer columns** | Typed schema for kind / category / status / urgency, plus expiry timestamps and counters with `min: 0`. |
 | **Compound key index** | `status + $createdAt` backs the main "open posts, newest first" query. |
-| **One-to-many relationships** | `posts → messages` (cascade delete: deleting a post removes its thread) and `posts → kudos` (set-null: kudos outlive a post). Threads load in a single call via `Query.select(['*', 'messages.*'])`. |
+| **One-to-many relationships** | `posts → messages` (cascade delete, so a post never leaves an orphaned thread) and `posts → kudos` (set-null: kudos outlive a post). Threads load in a single call via `Query.select(['*', 'messages.*'])`. |
 | **Transactions** | **Claiming** reads the post inside a transaction, stages the claim and a system message, then commits. If two neighbours tap *I can help* at the same moment, the second commit hits a conflict and nothing is applied, so the UI says "someone beat you to it". |
 | **Batch operations (`createOperations`)** | **Completing** a post stages four writes across three tables (post → `done`, a kudos row, a thank-you message, a counter increment) and commits them atomically. |
 | **Atomic counters & operators** | Hearts use `incrementRowColumn`; reply counts use `Operator.increment(1)` inside `updateRow`. No read-modify-write races. |
 | **Aggregations** | The **Neighbourhood Pulse** is `groupBy(['category']) + count()` within the radius. **Heroes** is `groupBy(['toId','toName']) + sum('points') + count()`. Your karma is a filtered `sum`. Both fall back to a narrow `select` + client tally on servers without aggregation. |
 | **Logical queries** | *My activity* is `Query.or([equal('authorId'), equal('helperId')])` on two indexed columns. |
 | **Cheap counts** | "Helped this week" is `equal('status','done') + updatedAfter(7 days) + limit(1)`, which reads only `total`. |
-| **Row security + permissions** | Anyone can read; signed-in users create/claim; only the author holds `delete` on their own post row. |
+| **Row security + permissions** | Anyone can read; signed-in users create/claim; only the author holds `delete` on their own post row, and only until a neighbour has replied. Other people's messages are never deletable by the author. |
 | **Realtime** | One websocket subscribes to `tablesdb.hearth.tables.{posts,messages,kudos}.rows`. New pins drop onto the map, threads update, and the pulse/heroes refresh live. |
 
 ### 🔍 The Query Inspector
@@ -76,13 +76,17 @@ There is no custom backend. Everything is the Appwrite client SDK talking to Tab
    ```bash
    npm run setup
    ```
-5. **Seed a neighbourhood** around `VITE_DEFAULT_LAT/LNG`:
+5. **Verify** every TablesDB feature against your project (spatial, full-text, relationships, aggregations, transactions incl. a forced conflict, batch ops, cascade):
+   ```bash
+   npm run smoke
+   ```
+6. **Seed a neighbourhood** around `VITE_DEFAULT_LAT/LNG`:
    ```bash
    npm run seed                  # ~45 posts with threads, claims and kudos
    npm run seed -- --live-only   # optional: a new neighbour posts every few seconds
    npm run seed -- --reset       # wipe and reseed
    ```
-6. **Start:**
+7. **Start:**
    ```bash
    npm run dev
    ```

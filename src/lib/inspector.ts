@@ -33,9 +33,9 @@ export function clearLog() {
 }
 
 /** Appwrite queries are JSON strings; render them like the SDK call that built them. */
-export function prettyQuery(raw: string): string {
+export function prettyQuery(raw: string | object): string {
   try {
-    const q = JSON.parse(raw) as { method: string; attribute?: string; values?: unknown[] };
+    const q = (typeof raw === 'string' ? JSON.parse(raw) : raw) as { method: string; attribute?: string; values?: unknown[] };
     const args: string[] = [];
     if (q.attribute) args.push(JSON.stringify(q.attribute));
     // Geo queries pack [point, distance, meters] into a single value; unpack for readability.
@@ -43,12 +43,14 @@ export function prettyQuery(raw: string): string {
       const [point, distance, meters] = q.values[0] as [number[], number, boolean];
       args.push(`[${point.map((n) => n.toFixed(4)).join(', ')}]`, String(distance), String(meters));
     } else if (q.values?.length) {
-      const nested = q.values.every((v) => typeof v === 'string' && v.startsWith('{'));
-      args.push(nested ? `[${(q.values as string[]).map(prettyQuery).join(', ')}]` : q.values.map((v) => JSON.stringify(v)).join(', '));
+      // Logical queries (or/and) nest whole queries, as JSON strings or objects.
+      const isQuery = (v: unknown) => (typeof v === 'string' && v.startsWith('{')) || (typeof v === 'object' && v !== null && 'method' in v);
+      const nested = q.values.every(isQuery);
+      args.push(nested ? `[${(q.values as (string | object)[]).map(prettyQuery).join(', ')}]` : q.values.map((v) => JSON.stringify(v)).join(', '));
     }
     return `Query.${q.method}(${args.join(', ')})`;
   } catch {
-    return raw;
+    return typeof raw === 'string' ? raw : JSON.stringify(raw);
   }
 }
 

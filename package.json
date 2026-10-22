@@ -7,7 +7,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "setup": "node --env-file=.env scripts/setup.mjs",
-    "seed": "node --env-file=.env scripts/seed.mjs"
+    "seed": "node --env-file=.env scripts/seed.mjs",
+    "smoke": "node --env-file=.env scripts/smoke.mjs"
   },
   "repository": {
     "type": "git",
