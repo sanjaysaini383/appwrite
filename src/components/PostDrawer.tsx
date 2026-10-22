@@ -47,11 +47,16 @@ export function PostDrawer({ postId, livePost, me, origin, bus, onClose, onRequi
 
   const post = livePost ?? fetched;
 
+  const [reload, setReload] = useState(0);
+
   useEffect(() => {
-    let alive = true;
     setMessages(null);
     setThanking(false);
     setLiked(hearted(postId));
+  }, [postId]);
+
+  useEffect(() => {
+    let alive = true;
     getPostWithThread(postId)
       .then(({ post, messages }) => {
         if (!alive) return;
@@ -62,12 +67,14 @@ export function PostDrawer({ postId, livePost, me, origin, bus, onClose, onRequi
     return () => {
       alive = false;
     };
-  }, [postId, toast]);
+  }, [postId, reload, toast]);
 
-  // New messages for this post arrive over Realtime via the app-wide bus.
+  // New messages for this post arrive over Realtime via the app-wide bus. If an
+  // event can't be attributed to a post, re-read the thread through the relationship.
   useEffect(() => {
     const onMsg = (e: Event) => {
-      const { postId: pid, message } = (e as CustomEvent<{ postId: string; message: Message }>).detail;
+      const { postId: pid, message } = (e as CustomEvent<{ postId: string | null; message: Message }>).detail;
+      if (pid === null) return setReload((n) => n + 1);
       if (pid !== postId) return;
       setMessages((prev) => (prev && !prev.some((m) => m.$id === message.$id) ? [...prev, message] : prev));
     };

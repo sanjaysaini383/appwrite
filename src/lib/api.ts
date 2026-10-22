@@ -44,6 +44,19 @@ export async function listNearby(f: Filters): Promise<Post[]> {
   return res.rows;
 }
 
+/** Everything I posted or am helping with: two indexed columns OR-ed together. */
+export async function listMine(userId: string): Promise<Post[]> {
+  const queries = [
+    Query.or([Query.equal('authorId', userId), Query.equal('helperId', userId)]),
+    Query.orderDesc('$updatedAt'),
+    Query.limit(50),
+  ];
+  const res = await track('listRows', TABLES.posts, show(queries), () =>
+    tablesDB.listRows<Post>({ databaseId, tableId: TABLES.posts, queries }),
+  );
+  return res.rows;
+}
+
 /** One post plus its whole thread, loaded through the posts → messages relationship. */
 export async function getPostWithThread(postId: string): Promise<{ post: Post; messages: Message[] }> {
   const queries = [Query.select(['*', 'messages.*'])];
@@ -72,8 +85,8 @@ export type NewPost = {
 
 export async function createPost(input: NewPost, me: Me): Promise<Post> {
   const expiresAt = new Date(Date.now() + input.expiresInHours * 3600_000).toISOString();
-  return track('createRow', TABLES.posts, [`kind: ${input.kind}`, `location: [${input.location.map((n) => n.toFixed(4))}]`], () =>
-    tablesDB.createRow<Post>({
+  const row = await track('createRow', TABLES.posts, [`kind: ${input.kind}`, `location: [${input.location.map((n) => n.toFixed(4))}]`], () =>
+    tablesDB.createRow({
       databaseId,
       tableId: TABLES.posts,
       rowId: ID.unique(),
@@ -92,6 +105,7 @@ export async function createPost(input: NewPost, me: Me): Promise<Post> {
       permissions: [Permission.read(Role.any()), Permission.update(Role.users()), Permission.delete(Role.user(me.id))],
     }),
   );
+  return row as unknown as Post;
 }
 
 export async function deletePost(postId: string) {
@@ -113,7 +127,7 @@ export async function heartPost(postId: string): Promise<Post> {
 
 export async function sendMessage(postId: string, body: string, me: Me) {
   const msg = await track('createRow', TABLES.messages, [`post → ${postId}`], () =>
-    tablesDB.createRow<Message>({
+    tablesDB.createRow({
       databaseId,
       tableId: TABLES.messages,
       rowId: ID.unique(),
