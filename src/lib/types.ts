@@ -1,4 +1,5 @@
 import type { Models } from 'appwrite';
+import { Car, HeartHandshake, Laptop, PawPrint, ShoppingCart, Sparkles, UtensilsCrossed, Wrench, type LucideIcon } from 'lucide-react';
 
 export type Kind = 'request' | 'offer';
 export type Status = 'open' | 'claimed' | 'done';
@@ -41,15 +42,15 @@ export type Kudos = Models.Row & {
   note: string | null;
 };
 
-export const CATEGORIES: { id: Category; label: string; emoji: string; color: string }[] = [
-  { id: 'groceries', label: 'Groceries', emoji: '🛒', color: '#3fb27f' },
-  { id: 'tools', label: 'Tools', emoji: '🔧', color: '#e0a526' },
-  { id: 'rides', label: 'Rides', emoji: '🚗', color: '#4d8df6' },
-  { id: 'tech', label: 'Tech help', emoji: '💻', color: '#8c6cf0' },
-  { id: 'care', label: 'Care', emoji: '🤝', color: '#ef5f8b' },
-  { id: 'food', label: 'Food', emoji: '🍲', color: '#ff7a3d' },
-  { id: 'pets', label: 'Pets', emoji: '🐾', color: '#21b5c4' },
-  { id: 'other', label: 'Other', emoji: '✨', color: '#9a8f86' },
+export const CATEGORIES: { id: Category; label: string; icon: LucideIcon; color: string }[] = [
+  { id: 'groceries', label: 'Groceries', icon: ShoppingCart, color: '#16a34a' },
+  { id: 'tools', label: 'Tools', icon: Wrench, color: '#ca8a04' },
+  { id: 'rides', label: 'Rides', icon: Car, color: '#2563eb' },
+  { id: 'tech', label: 'Tech help', icon: Laptop, color: '#7c3aed' },
+  { id: 'care', label: 'Care', icon: HeartHandshake, color: '#db2777' },
+  { id: 'food', label: 'Food', icon: UtensilsCrossed, color: '#ea580c' },
+  { id: 'pets', label: 'Pets', icon: PawPrint, color: '#0891b2' },
+  { id: 'other', label: 'Other', icon: Sparkles, color: '#64748b' },
 ];
 
 export const categoryMeta = (id: Category) => CATEGORIES.find((c) => c.id === id) ?? CATEGORIES[CATEGORIES.length - 1];

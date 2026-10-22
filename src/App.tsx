@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { CircleAlert, CircleCheck, Inbox, LocateFixed, Plus, Search, Sprout, Star, TriangleAlert } from 'lucide-react';
 import { ComposeSheet } from './components/ComposeSheet';
 import { Heroes } from './components/Heroes';
 import { Inspector } from './components/Inspector';
@@ -239,7 +240,7 @@ export default function App() {
       setPosts((list) => (list.some((x) => x.$id === post.$id) ? list : [post, ...list]));
       markFresh(post.$id);
       setSelectedId(post.$id);
-      toast('Posted! Neighbours nearby can see it now.');
+      toast('Published. Neighbours nearby can see it now.');
     } catch (err) {
       toast(err instanceof Error ? err.message : 'Could not post', 'err');
     }
@@ -262,14 +263,16 @@ export default function App() {
         <header className="topbar">
           <div className="brand">
             <img src="/hearth.svg" alt="" />
-            <span>Hearth</span>
+            <span className="brand__name">Hearth</span>
             <span className={`live ${live ? 'live--on' : ''}`} title={live ? 'Realtime connected' : 'Connecting…'}>
-              <i /> {live ? 'live' : '…'}
+              <i /> {live ? 'Live' : 'Offline'}
             </span>
           </div>
           {me ? (
             <button className="me" onClick={() => confirm(`Sign out ${me.name}?`) && leave()} title="Sign out">
-              {karma && karma.points > 0 && <span className="me__karma">★ {karma.points}</span>}
+              {karma && karma.points > 0 && <span className="me__karma" title="Kudos received">
+                  <Star size={12} fill="currentColor" /> {karma.points}
+                </span>}
               <Avatar id={me.id} name={me.name} size={30} />
             </button>
           ) : (
@@ -306,7 +309,10 @@ export default function App() {
 
             {tab === 'heroes' ? (
               <div className="scroll">
-                <p className="section-note">Ranked by kudos stars, summed by the database with groupBy + sum.</p>
+                <div className="section-head">
+                  <div className="section-label">Neighbourhood heroes</div>
+                  <p className="section-note">Ranked by kudos received. Aggregated in TablesDB with groupBy and sum.</p>
+                </div>
                 <Heroes heroes={heroList} meId={me?.id} />
               </div>
             ) : (
@@ -315,12 +321,15 @@ export default function App() {
                   <>
                     <PulseBar rows={pulseRows} doneThisWeek={doneWeek} active={category} onPick={setCategory} />
                     <div className="filters">
-                      <input className="input input--search" placeholder="Search titles…" value={search} onChange={(e) => setSearch(e.target.value)} />
+                      <div className="search">
+                        <Search size={15} />
+                        <input className="input" placeholder="Search posts" value={search} onChange={(e) => setSearch(e.target.value)} />
+                      </div>
                       <div className="filters__row">
                         <div className="seg seg--sm">
                           {(['all', 'request', 'offer'] as const).map((k) => (
                             <button key={k} className={kind === k ? 'on' : ''} onClick={() => setKind(k)}>
-                              {k === 'all' ? 'All' : k === 'request' ? 'Needs' : 'Offers'}
+                              {k === 'all' ? 'All' : k === 'request' ? 'Requests' : 'Offers'}
                             </button>
                           ))}
                         </div>
@@ -340,14 +349,14 @@ export default function App() {
                   {loading && !visible.length && !loadError && [0, 1, 2].map((i) => <div key={i} className="card card--skeleton" />)}
                   {!loading && !visible.length && !loadError && (
                     <div className="empty">
-                      <div className="empty__art">{tab === 'mine' ? '🌱' : '🏡'}</div>
+                      <div className="empty__icon">{tab === 'mine' ? <Sprout size={22} /> : <Inbox size={22} />}</div>
                       <p>
                         {tab === 'mine'
-                          ? 'Nothing yet. Post something or offer to help a neighbour.'
-                          : 'Quiet around here. Widen the radius, or be the first to post.'}
+                          ? 'No activity yet. Publish a post or offer to help a neighbour.'
+                          : 'No posts in this area. Widen the radius or publish the first one.'}
                       </p>
                       <button className="btn btn--primary" onClick={startCompose}>
-                        Post something
+                        <Plus size={16} /> New post
                       </button>
                     </div>
                   )}
@@ -377,13 +386,13 @@ export default function App() {
 
       <div className="map-actions">
         {myLocation && (
-          <button className="fab fab--sm" onClick={() => setFlyTo({ at: myLocation, seq: Date.now() })} title="Back to my location">
-            ◎
+          <button className="fab fab--sm" onClick={() => setFlyTo({ at: myLocation, seq: Date.now() })} title="Back to my location" aria-label="Back to my location">
+            <LocateFixed size={18} />
           </button>
         )}
         {!composing && (
           <button className="fab" onClick={startCompose}>
-            <span>＋</span> Ask or offer
+            <Plus size={18} strokeWidth={2.5} /> New post
           </button>
         )}
       </div>
@@ -393,6 +402,7 @@ export default function App() {
       <div className="toasts" aria-live="polite">
         {toasts.map((t) => (
           <div key={t.id} className={`toast toast--${t.tone}`}>
+            {t.tone === 'ok' ? <CircleCheck size={16} /> : t.tone === 'warn' ? <TriangleAlert size={16} /> : <CircleAlert size={16} />}
             {t.msg}
           </div>
         ))}
@@ -402,7 +412,7 @@ export default function App() {
         <JoinDialog
           onJoin={async (name) => {
             await join(name);
-            toast(`Welcome, ${name}! 👋`);
+            toast(`Welcome, ${name}.`);
           }}
           onBrowse={() => {
             setJoinOpen(false);

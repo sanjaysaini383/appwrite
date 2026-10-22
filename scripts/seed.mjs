@@ -32,7 +32,7 @@ const IDEAS = [
   ['request', 'tools', 'Anyone have a ladder I can borrow this evening?', 'Changing a ceiling bulb, 8ft should do.', 'normal'],
   ['offer', 'tools', 'Lending my pressure washer this weekend', 'Free to borrow, just bring it back clean-ish.', 'low'],
   ['request', 'groceries', 'Could someone pick up milk and bread?', 'Down with a fever, happy to pay via UPI.', 'high'],
-  ['offer', 'groceries', 'Going to the market at 6, can pick up for 2 people', 'Short lists please 🙂', 'normal'],
+  ['offer', 'groceries', 'Going to the market at 6, can pick up for 2 people', 'Short lists please', 'normal'],
   ['request', 'rides', 'Ride to the station tomorrow 7am', 'Have one suitcase. Will split fuel.', 'normal'],
   ['offer', 'rides', 'Driving to the airport Sunday morning, 2 seats free', 'Leaving around 5:30am.', 'low'],
   ['request', 'rides', 'Need a lift to the hospital for a check-up', 'Appointment at 11, my car is in the shop.', 'high'],
@@ -41,7 +41,7 @@ const IDEAS = [
   ['request', 'tech', 'Wi-Fi router keeps dropping — anyone techy?', 'Tried restarting a dozen times.', 'normal'],
   ['request', 'care', 'Someone to sit with my dad for an hour', 'He’s 82 and loves cricket talk. Thursday afternoon.', 'normal'],
   ['offer', 'care', 'Can walk with elderly neighbours in the evening', 'Park loop, 6–7pm, any day.', 'low'],
-  ['request', 'care', 'Need help carrying groceries up 4 floors', 'Lift is broken again 😩', 'high'],
+  ['request', 'care', 'Need help carrying groceries up 4 floors', 'Lift is broken again', 'high'],
   ['offer', 'food', 'Made too much biryani — 3 portions free', 'Veg. Pick up before 9pm.', 'normal'],
   ['offer', 'food', 'Fresh mangoes from our tree, take a bag', 'Leaving them by the gate.', 'low'],
   ['request', 'food', 'Looking for a home-cooked tiffin this week', 'Recovering from surgery, will pay.', 'normal'],
@@ -61,14 +61,14 @@ const IDEAS = [
 const CHAT = [
   'Hi! I live two lanes away, can come by.',
   'Is this still needed?',
-  'Thank you so much 🙏',
+  'Thank you so much',
   'Sending you my number on here.',
   'Be there in 10 mins.',
   'I can do tomorrow if today doesn’t work.',
   'Amazing, see you soon!',
 ];
 
-const THANKS = ['Lifesaver!', 'So kind, thank you', 'Above and beyond 💛', 'Super quick, thanks!', ''];
+const THANKS = ['Lifesaver!', 'So kind, thank you', 'Above and beyond', 'Super quick, thanks!', ''];
 
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 const pickOther = (exclude) => pick(PEOPLE.filter((p) => p.id !== exclude.id));
@@ -119,7 +119,7 @@ async function makePost(idea, { fate = 'open', km = 4 } = {}) {
     await message(post.$id, helper, pick(CHAT));
     replies++;
     if (fate !== 'open') {
-      await message(post.$id, helper, `${helper.name} is on it 🙌`, true);
+      await message(post.$id, helper, `${helper.name} offered to help`, true);
       await message(post.$id, author, pick(CHAT));
       replies += 2;
       await db.updateRow({
@@ -138,7 +138,7 @@ async function makePost(idea, { fate = 'open', km = 4 } = {}) {
         rowId: ID.unique(),
         data: { post: post.$id, fromId: author.id, fromName: author.name, toId: helper.id, toName: helper.name, points, note: note || null },
       });
-      await message(post.$id, author, `Done! ${author.name} thanked ${helper.name} with ${'★'.repeat(points)}${note ? ` — “${note}”` : ''}`, true);
+      await message(post.$id, author, `${author.name} marked this done and thanked ${helper.name} (${points}/5)${note ? `: “${note}”` : ''}`, true);
       replies++;
       await db.updateRow({ databaseId, tableId: 'posts', rowId: post.$id, data: { status: 'done' } });
     }

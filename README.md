@@ -38,7 +38,9 @@ Hearth is built to use as much of **Appwrite TablesDB** as a real product would,
 
 Click **⚡ TablesDB** in the corner of the map. Every database call the page makes (queries rendered as the SDK calls that built them, timings, transaction stages, rollbacks, and Realtime pushes) streams into a live panel. This is how you can verify the table above while using the app.
 
-<p align="center"><img src="docs/screenshot-inspector-dark.png" alt="Post thread and the Query Inspector in dark mode" width="100%" /></p>
+<p align="center"><img src="docs/screenshot-inspector.png" alt="Heroes leaderboard with the Query Inspector open" width="100%" /></p>
+
+<p align="center"><img src="docs/screenshot-dark.png" alt="A completed post and its conversation in dark mode" width="100%" /></p>
 
 ## Architecture
 
@@ -114,7 +116,8 @@ All open source:
 - [Appwrite](https://appwrite.io): TablesDB, Realtime and Auth via [`appwrite`](https://www.npmjs.com/package/appwrite) (web) and [`node-appwrite`](https://www.npmjs.com/package/node-appwrite) (scripts)
 - [React 19](https://react.dev) + [Vite](https://vite.dev) + TypeScript
 - [Leaflet](https://leafletjs.com) + [react-leaflet](https://react-leaflet.js.org) with [OpenStreetMap](https://www.openstreetmap.org) tiles (no API key), themed for light/dark with CSS filters
-- Fonts: [Fraunces](https://fonts.google.com/specimen/Fraunces) and [Inter](https://fonts.google.com/specimen/Inter)
+- [Lucide](https://lucide.dev) icons
+- Fonts: [Geist and Geist Mono](https://vercel.com/font)
 
 No AI APIs and no paid map APIs.
 

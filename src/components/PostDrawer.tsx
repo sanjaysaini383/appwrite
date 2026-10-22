@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { ArrowLeft, CircleCheck, Clock, HandHelping, Heart, LocateFixed, MapPin, Send, Star, Trash2, Undo2 } from 'lucide-react';
 import {
   ClaimConflict,
   claimPost,
@@ -11,7 +12,7 @@ import {
   type Me,
 } from '../lib/api';
 import { distanceKm, formatDistance, timeAgo, timeLeft } from '../lib/format';
-import { categoryMeta, type LngLat, type Message, type Post } from '../lib/types';
+import { categoryMeta, type LngLat, type Message, type Post, type Status } from '../lib/types';
 import { Avatar } from './Avatar';
 
 type Props = {
@@ -25,6 +26,8 @@ type Props = {
   onFocus: (at: LngLat) => void;
   toast: (msg: string, tone?: 'ok' | 'warn' | 'err') => void;
 };
+
+const STATUS_LABEL: Record<Status, string> = { open: 'Open', claimed: 'In progress', done: 'Completed' };
 
 const hearted = (id: string) => {
   try {
@@ -89,7 +92,7 @@ export function PostDrawer({ postId, livePost, me, origin, bus, onClose, onRequi
   if (!post) {
     return (
       <aside className="drawer">
-        <div className="drawer__loading">Loading…</div>
+        <div className="drawer__loading">Loading post…</div>
       </aside>
     );
   }
@@ -98,6 +101,7 @@ export function PostDrawer({ postId, livePost, me, origin, bus, onClose, onRequi
   const isAuthor = me?.id === post.authorId;
   const isHelper = me?.id === post.helperId;
   const left = timeLeft(post.expiresAt);
+  const Icon = meta.icon;
 
   const run = async (label: string, fn: () => Promise<unknown>, ok?: string) => {
     if (!me) return onRequireJoin();
@@ -134,74 +138,94 @@ export function PostDrawer({ postId, livePost, me, origin, bus, onClose, onRequi
   };
 
   return (
-    <aside className="drawer" style={{ ['--accent' as string]: meta.color }}>
+    <aside className="drawer" style={{ ['--accent-cat' as string]: meta.color }}>
       <header className="drawer__head">
-        <button className="icon-btn" onClick={onClose} aria-label="Close">
-          ←
+        <button className="icon-btn" onClick={onClose} aria-label="Back to list" title="Back">
+          <ArrowLeft size={17} />
         </button>
         <div className="drawer__crumbs">
-          <span className={`badge badge--${post.kind}`}>{post.kind === 'request' ? 'Needs help' : 'Offering'}</span>
-          <span className={`badge badge--${post.status}`}>{post.status}</span>
-          {left && <span className="badge">{left}</span>}
+          <span className={`kind kind--${post.kind}`}>{post.kind === 'request' ? 'Request' : 'Offer'}</span>
+          <span className={`badge badge--${post.status}`}>{STATUS_LABEL[post.status]}</span>
+          {post.urgency === 'high' && post.status === 'open' && <span className="badge badge--urgent">Urgent</span>}
+          {left && (
+            <span className="drawer__left">
+              <Clock size={12} /> {left}
+            </span>
+          )}
         </div>
         <button className="icon-btn" onClick={() => onFocus(post.location)} aria-label="Show on map" title="Show on map">
-          ◎
+          <LocateFixed size={16} />
         </button>
       </header>
 
       <div className="drawer__body">
         <div className="drawer__hero">
-          <div className="drawer__emoji">{meta.emoji}</div>
-          <div>
+          <div className="drawer__icon">
+            <Icon size={22} strokeWidth={2} />
+          </div>
+          <div className="drawer__heading">
+            <div className="drawer__cat">{meta.label}</div>
             <h2 className="drawer__title">{post.title}</h2>
-            <div className="drawer__sub">
-              <Avatar id={post.authorId} name={post.authorName} size={20} />
-              {post.authorName} · {timeAgo(post.$createdAt)} · {formatDistance(distanceKm(origin, post.location))} away
-            </div>
           </div>
         </div>
+
+        <div className="drawer__by">
+          <Avatar id={post.authorId} name={post.authorName} size={22} />
+          <span className="drawer__byname">{post.authorName}</span>
+          <span className="dot">·</span>
+          <span>{timeAgo(post.$createdAt)}</span>
+          <span className="dot">·</span>
+          <span>
+            <MapPin size={12} /> {formatDistance(distanceKm(origin, post.location))} away
+          </span>
+        </div>
+
         {post.body && <p className="drawer__text">{post.body}</p>}
 
         <div className="drawer__actions">
           {post.status === 'open' && !isAuthor && (
-            <button className="btn btn--primary" disabled={!!busy} onClick={() => run('claim', () => claimPost(post.$id, me!), 'You’re on it! They’ve been notified.')}>
-              {busy === 'claim' ? 'Claiming…' : post.kind === 'request' ? '🙋 I can help' : '🙏 I’d like this'}
+            <button className="btn btn--primary" disabled={!!busy} onClick={() => run('claim', () => claimPost(post.$id, me!), 'You’re helping with this. They’ve been notified.')}>
+              <HandHelping size={16} />
+              {busy === 'claim' ? 'Claiming…' : post.kind === 'request' ? 'I can help' : 'Request this'}
             </button>
           )}
           {post.status === 'claimed' && isHelper && (
             <button className="btn" disabled={!!busy} onClick={() => run('release', () => releasePost(post.$id, me!))}>
-              Step back
+              <Undo2 size={15} /> Step back
             </button>
           )}
           {post.status === 'claimed' && isAuthor && !thanking && (
             <button className="btn btn--primary" onClick={() => setThanking(true)}>
-              ✅ Done — thank {post.helperName}
+              <CircleCheck size={16} /> Mark as done
             </button>
           )}
-          <button className={`btn btn--ghost ${liked ? 'btn--liked' : ''}`} onClick={onHeart} title="Show some love">
-            ♥ {post.hearts}
+          <button className={`btn ${liked ? 'btn--liked' : ''}`} onClick={onHeart} title={liked ? 'You appreciated this' : 'Appreciate'} aria-pressed={liked}>
+            <Heart size={15} fill={liked ? 'currentColor' : 'none'} /> {post.hearts}
           </button>
           {/* Deletion is allowed until a neighbour engages; after that the thread
               holds other people's rows, which the author has no rights over. */}
           {isAuthor && post.status === 'open' && post.replies === 0 && (
             <button
-              className="btn btn--ghost btn--danger"
+              className="icon-btn icon-btn--danger"
               disabled={!!busy}
+              title="Delete post"
+              aria-label="Delete post"
               onClick={() => {
-                if (confirm('Delete this post and its conversation?')) run('delete', () => deletePost(post.$id), 'Post removed.').then(onClose);
+                if (confirm('Delete this post?')) run('delete', () => deletePost(post.$id), 'Post deleted.').then(onClose);
               }}
             >
-              Delete
+              <Trash2 size={16} />
             </button>
           )}
         </div>
 
         {post.status === 'claimed' && post.helperName && !thanking && (
           <div className="helper-banner">
-            <Avatar id={post.helperId!} name={post.helperName} size={26} />
-            <span>
-              <strong>{isHelper ? 'You are' : `${post.helperName} is`}</strong> on it
-            </span>
+            <Avatar id={post.helperId!} name={post.helperName} size={28} />
+            <div>
+              <strong>{isHelper ? 'You’re helping' : `${post.helperName} is helping`}</strong>
+              <span>{isAuthor ? 'Mark it as done once you’re sorted.' : 'Coordinate the details in the conversation below.'}</span>
+            </div>
           </div>
         )}
 
@@ -210,39 +234,40 @@ export function PostDrawer({ postId, livePost, me, origin, bus, onClose, onRequi
             className="thank"
             onSubmit={(e) => {
               e.preventDefault();
-              run('complete', () => completePost(post, me!, stars, note.trim()), `Kudos sent to ${post.helperName} ✨`).then(() =>
+              run('complete', () => completePost(post, me!, stars, note.trim()), `Kudos sent to ${post.helperName}.`).then(() =>
                 setThanking(false),
               );
             }}
           >
-            <div className="thank__title">How much did {post.helperName} help?</div>
-            <div className="stars" role="radiogroup">
+            <div className="thank__title">Rate {post.helperName}’s help</div>
+            <div className="stars" role="radiogroup" aria-label="Kudos">
               {[1, 2, 3, 4, 5].map((n) => (
-                <button type="button" key={n} className={n <= stars ? 'on' : ''} onClick={() => setStars(n)} aria-label={`${n} stars`}>
-                  ★
+                <button type="button" key={n} className={n <= stars ? 'on' : ''} onClick={() => setStars(n)} aria-label={`${n} of 5`}>
+                  <Star size={24} fill="currentColor" strokeWidth={1.5} />
                 </button>
               ))}
             </div>
-            <input className="input" placeholder="Say thanks (optional)" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} />
+            <input className="input" placeholder="Add a thank-you note (optional)" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} />
             <div className="thank__row">
+              <span className="thank__hint">Commits post, kudos and message as one transaction.</span>
               <button type="button" className="btn btn--ghost" onClick={() => setThanking(false)}>
                 Cancel
               </button>
               <button className="btn btn--primary" disabled={busy === 'complete'}>
-                {busy === 'complete' ? 'Committing…' : 'Mark done'}
+                {busy === 'complete' ? 'Saving…' : 'Complete'}
               </button>
             </div>
-            <div className="thank__hint">One TablesDB transaction: post → done, kudos row, thank-you message.</div>
           </form>
         )}
 
         <div className="thread" ref={threadRef}>
+          <div className="section-label">Conversation</div>
           {messages === null && <div className="thread__empty">Loading conversation…</div>}
-          {messages?.length === 0 && <div className="thread__empty">No messages yet — say hi 👋</div>}
+          {messages?.length === 0 && <div className="thread__empty">No messages yet. Start the conversation.</div>}
           {messages?.map((m) =>
             m.system ? (
               <div key={m.$id} className="msg msg--system">
-                {m.body}
+                <span>{m.body}</span>
               </div>
             ) : (
               <div key={m.$id} className={`msg ${m.authorId === me?.id ? 'msg--mine' : ''}`}>
@@ -268,8 +293,8 @@ export function PostDrawer({ postId, livePost, me, origin, bus, onClose, onRequi
           onChange={(e) => setDraft(e.target.value)}
           onFocus={() => !me && onRequireJoin()}
         />
-        <button className="btn btn--primary" disabled={!draft.trim() || busy === 'send'}>
-          Send
+        <button className="btn btn--primary btn--icon" disabled={!draft.trim() || busy === 'send'} aria-label="Send">
+          <Send size={16} />
         </button>
       </form>
     </aside>

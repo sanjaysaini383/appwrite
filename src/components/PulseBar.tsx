@@ -15,33 +15,34 @@ export function PulseBar({ rows, doneThisWeek, active, onPick }: Props) {
 
   return (
     <section className="pulse">
-      <div className="pulse__head">
-        <div>
-          <div className="pulse__big">{total}</div>
-          <div className="pulse__label">open nearby</div>
+      <div className="kpis">
+        <div className="kpi">
+          <div className="kpi__label">Open nearby</div>
+          <div className="kpi__value">{total}</div>
         </div>
-        <div>
-          <div className="pulse__big pulse__big--warm">{doneThisWeek ?? '–'}</div>
-          <div className="pulse__label">helped this week</div>
+        <div className="kpi">
+          <div className="kpi__label">Helped this week</div>
+          <div className="kpi__value kpi__value--accent">{doneThisWeek ?? '–'}</div>
         </div>
       </div>
-      <div className="pulse__bars" role="list">
-        <button className={`chip ${active === 'all' ? 'chip--on' : ''}`} onClick={() => onPick('all')}>
+      <div className="cats" role="list" aria-label="Filter by category">
+        <button className={`cat ${active === 'all' ? 'cat--on' : ''}`} onClick={() => onPick('all')}>
           All
         </button>
         {CATEGORIES.map((c) => {
           const n = byCat.get(c.id) ?? 0;
+          const Icon = c.icon;
           return (
             <button
               key={c.id}
               role="listitem"
-              className={`chip chip--bar ${active === c.id ? 'chip--on' : ''}`}
-              style={{ ['--accent' as string]: c.color, ['--fill' as string]: `${(n / max) * 100}%` }}
+              className={`cat ${active === c.id ? 'cat--on' : ''}`}
+              style={{ ['--accent-cat' as string]: c.color, ['--fill' as string]: `${(n / max) * 100}%` }}
               onClick={() => onPick(active === c.id ? 'all' : c.id)}
-              title={`${n} open ${c.label.toLowerCase()} posts`}
+              title={`${c.label}: ${n} open`}
             >
-              <span>{c.emoji}</span>
-              <span className="chip__n">{n}</span>
+              <Icon size={14} strokeWidth={2} />
+              <span className="cat__n">{n}</span>
             </button>
           );
         })}

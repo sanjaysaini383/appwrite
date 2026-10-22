@@ -1,5 +1,7 @@
-import { useEffect, useMemo } from 'react';
+import { createElement, useEffect, useMemo } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import L from 'leaflet';
+import { MapPin } from 'lucide-react';
 import { Circle, MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import { categoryMeta, type LngLat, type Post } from '../lib/types';
 
@@ -19,6 +21,16 @@ type Props = {
 
 const toLatLng = ([lng, lat]: LngLat): [number, number] => [lat, lng];
 
+// Leaflet markers take an HTML string, so render each category's icon to SVG once.
+const glyphs = new Map<string, string>();
+function glyph(category: Post['category']) {
+  if (!glyphs.has(category)) {
+    const meta = categoryMeta(category);
+    glyphs.set(category, renderToStaticMarkup(createElement(meta.icon, { size: 16, color: '#fff', strokeWidth: 2.25 })));
+  }
+  return glyphs.get(category)!;
+}
+
 function pinIcon(post: Post, selected: boolean, fresh: boolean) {
   const meta = categoryMeta(post.category);
   const classes = [
@@ -31,9 +43,9 @@ function pinIcon(post: Post, selected: boolean, fresh: boolean) {
   ].join(' ');
   return L.divIcon({
     className: 'pin-wrap',
-    html: `<div class="${classes}" style="--pin:${meta.color}"><span>${meta.emoji}</span></div>`,
-    iconSize: [40, 48],
-    iconAnchor: [20, 46],
+    html: `<div class="${classes}" style="--pin:${meta.color}"><span>${glyph(post.category)}</span></div>`,
+    iconSize: [34, 42],
+    iconAnchor: [17, 40],
   });
 }
 
@@ -75,7 +87,7 @@ export function MapView(props: Props) {
         <Circle
           center={toLatLng(center)}
           radius={radiusKm * 1000}
-          pathOptions={{ color: '#ff7a3d', weight: 1.5, dashArray: '6 6', fillColor: '#ff7a3d', fillOpacity: 0.04 }}
+          pathOptions={{ color: '#ea580c', weight: 1.25, dashArray: '4 6', fillColor: '#ea580c', fillOpacity: 0.035 }}
           interactive={false}
         />
         {me && <Marker position={toLatLng(me)} icon={meIcon} interactive={false} />}
@@ -91,7 +103,9 @@ export function MapView(props: Props) {
       </MapContainer>
       {composing && (
         <div className="crosshair" aria-hidden>
-          <div className="crosshair__pin">📍</div>
+          <div className="crosshair__pin">
+            <MapPin size={40} strokeWidth={2} fill="var(--accent)" color="#fff" />
+          </div>
           <div className="crosshair__hint">Drag the map to place your pin</div>
         </div>
       )}

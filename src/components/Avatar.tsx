@@ -5,7 +5,13 @@ export function Avatar({ id, name, size = 28 }: { id: string; name: string; size
   return (
     <span
       className="avatar"
-      style={{ width: size, height: size, fontSize: size * 0.4, background: `hsl(${hue} 60% 45%)` }}
+      style={{
+        width: size,
+        height: size,
+        fontSize: Math.max(9, size * 0.38),
+        background: `hsl(${hue} 45% 92%)`,
+        color: `hsl(${hue} 45% 32%)`,
+      }}
       aria-hidden
     >
       {initials(name) || '?'}

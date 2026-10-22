@@ -118,7 +118,7 @@ export async function deletePost(postId: string) {
   );
 }
 
-/** Atomic counter: no read-modify-write race when many neighbours tap ♥ at once. */
+/** Atomic counter: no read-modify-write race when many neighbours tap the heart at once. */
 export async function heartPost(postId: string): Promise<Post> {
   return track('incrementRowColumn', TABLES.posts, [`rowId: ${postId}`, 'column: hearts', 'value: 1'], () =>
     tablesDB.incrementRowColumn<Post>({ databaseId, tableId: TABLES.posts, rowId: postId, column: 'hearts', value: 1 }),
@@ -174,7 +174,7 @@ export async function claimPost(postId: string, me: Me): Promise<void> {
         databaseId,
         tableId: TABLES.messages,
         rowId: ID.unique(),
-        data: { post: postId, authorId: me.id, authorName: me.name, body: `${me.name} is on it 🙌`, system: true },
+        data: { post: postId, authorId: me.id, authorName: me.name, body: `${me.name} offered to help`, system: true },
         transactionId,
       }),
     );
@@ -198,7 +198,7 @@ export async function releasePost(postId: string, me: Me) {
       data: { status: 'open', helperId: null, helperName: null },
     }),
   );
-  await sendSystem(postId, me, `${me.name} stepped back — this is open again.`);
+  await sendSystem(postId, me, `${me.name} stepped back. This is open again.`);
 }
 
 async function sendSystem(postId: string, me: Me, body: string) {
@@ -251,7 +251,7 @@ export async function completePost(post: Post, me: Me, points: number, note: str
         post: post.$id,
         authorId: me.id,
         authorName: me.name,
-        body: `Done! ${me.name} thanked ${post.helperName} with ${'★'.repeat(points)}${note ? ` — “${note}”` : ''}`,
+        body: `${me.name} marked this done and thanked ${post.helperName} (${points}/5)${note ? `: “${note}”` : ''}`,
         system: true,
       },
     },

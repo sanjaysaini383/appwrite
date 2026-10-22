@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ChevronDown, Database } from 'lucide-react';
 import { clearLog, subscribeLog, type LogEntry } from '../lib/inspector';
 
 export function Inspector({ open, onToggle }: { open: boolean; onToggle: () => void }) {
@@ -9,9 +10,10 @@ export function Inspector({ open, onToggle }: { open: boolean; onToggle: () => v
   return (
     <div className={`inspector ${open ? 'inspector--open' : ''}`}>
       <button className="inspector__toggle" onClick={onToggle} aria-expanded={open}>
-        <span className="inspector__bolt">⚡</span>
+        <Database size={14} className="inspector__bolt" />
         <span>TablesDB</span>
         <span className="inspector__count">{entries.length}</span>
+        {open && <ChevronDown size={14} />}
         {latest && !open && (
           <span className="inspector__peek">
             {latest.op} <em>{latest.table}</em>
