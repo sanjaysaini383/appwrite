@@ -93,6 +93,12 @@ export default function App() {
   const [karma, setKarma] = useState<{ points: number; helps: number } | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const bus = useMemo(() => new EventTarget(), []);
+  const panelRef = useRef<HTMLElement>(null);
+
+  // On phones the panel scrolls as a whole; start each view at the top.
+  useEffect(() => {
+    panelRef.current?.scrollTo({ top: 0 });
+  }, [selectedId, composing, tab]);
 
   const queryCenter = useDebounced(center, 350);
   const querySearch = useDebounced(search, 300);
@@ -252,7 +258,7 @@ export default function App() {
 
   return (
     <div className={`app ${dark ? 'app--dark' : ''}`}>
-      <section className="panel">
+      <section className="panel" ref={panelRef}>
         <header className="topbar">
           <div className="brand">
             <img src="/hearth.svg" alt="" />

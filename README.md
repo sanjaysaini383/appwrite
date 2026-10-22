@@ -4,6 +4,8 @@
 <p align="center"><b>Your neighbourhood on a live map.</b><br/>Ask for a hand or lend one: a ladder, a ride, a meal, ten minutes of tech help.</p>
 <p align="center">Built solo for the <a href="https://hackathon.appwrite.io">Appwrite Databases Hackathon</a> (Oct 19–31, 2026) on <b>Appwrite TablesDB</b>.</p>
 
+<p align="center"><img src="docs/screenshot-map.png" alt="Hearth: nearby posts on a live map with the neighbourhood pulse" width="100%" /></p>
+
 ---
 
 ## Why Hearth
@@ -35,6 +37,8 @@ Hearth is built to use as much of **Appwrite TablesDB** as a real product would,
 ### 🔍 The Query Inspector
 
 Click **⚡ TablesDB** in the corner of the map. Every database call the page makes (queries rendered as the SDK calls that built them, timings, transaction stages, rollbacks, and Realtime pushes) streams into a live panel. This is how you can verify the table above while using the app.
+
+<p align="center"><img src="docs/screenshot-inspector-dark.png" alt="Post thread and the Query Inspector in dark mode" width="100%" /></p>
 
 ## Architecture
 
@@ -105,7 +109,7 @@ All open source:
 
 - [Appwrite](https://appwrite.io): TablesDB, Realtime and Auth via [`appwrite`](https://www.npmjs.com/package/appwrite) (web) and [`node-appwrite`](https://www.npmjs.com/package/node-appwrite) (scripts)
 - [React 19](https://react.dev) + [Vite](https://vite.dev) + TypeScript
-- [Leaflet](https://leafletjs.com) + [react-leaflet](https://react-leaflet.js.org) with [OpenStreetMap](https://www.openstreetmap.org) data and [CARTO](https://carto.com/basemaps) tiles (no API key)
+- [Leaflet](https://leafletjs.com) + [react-leaflet](https://react-leaflet.js.org) with [OpenStreetMap](https://www.openstreetmap.org) tiles (no API key), themed for light/dark with CSS filters
 - Fonts: [Fraunces](https://fonts.google.com/specimen/Fraunces) and [Inter](https://fonts.google.com/specimen/Inter)
 
 No AI APIs and no paid map APIs.

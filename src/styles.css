@@ -1170,6 +1170,15 @@ textarea.input {
   font-family: var(--font);
 }
 
+/* OSM tiles are busy; soften them into the warm palette, and invert for dark mode. */
+.map .leaflet-tile-pane {
+  filter: saturate(0.55) sepia(0.12) brightness(1.03) contrast(0.92);
+}
+
+.map--dark .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(185deg) saturate(0.35) brightness(0.82) contrast(0.95);
+}
+
 .app--dark .leaflet-control-attribution {
   background: rgb(20 17 15 / 70%);
   color: var(--muted);
@@ -1556,6 +1565,37 @@ textarea.input {
     border-radius: 18px 18px 0 0;
     margin-top: -16px;
     box-shadow: 0 -10px 30px rgb(0 0 0 / 12%);
+    overflow-y: auto;
+  }
+
+  /* On phones the whole panel scrolls as one, so the feed isn't squeezed. */
+  .scroll,
+  .drawer__body,
+  .sheet {
+    flex: none;
+    overflow: visible;
+  }
+
+  .scroll {
+    padding-bottom: 120px;
+  }
+
+  .drawer {
+    flex: none;
+  }
+
+  .composer {
+    position: sticky;
+    bottom: 0;
+    padding-bottom: 84px;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: var(--surface);
+    border-radius: 18px 18px 0 0;
   }
 
   .map-actions {

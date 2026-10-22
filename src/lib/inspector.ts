@@ -38,7 +38,11 @@ export function prettyQuery(raw: string): string {
     const q = JSON.parse(raw) as { method: string; attribute?: string; values?: unknown[] };
     const args: string[] = [];
     if (q.attribute) args.push(JSON.stringify(q.attribute));
-    if (q.values?.length) {
+    // Geo queries pack [point, distance, meters] into a single value; unpack for readability.
+    if (q.method.startsWith('distance') && Array.isArray(q.values?.[0])) {
+      const [point, distance, meters] = q.values[0] as [number[], number, boolean];
+      args.push(`[${point.map((n) => n.toFixed(4)).join(', ')}]`, String(distance), String(meters));
+    } else if (q.values?.length) {
       const nested = q.values.every((v) => typeof v === 'string' && v.startsWith('{'));
       args.push(nested ? `[${(q.values as string[]).map(prettyQuery).join(', ')}]` : q.values.map((v) => JSON.stringify(v)).join(', '));
     }

@@ -61,17 +61,14 @@ export function MapView(props: Props) {
   const { center, radiusKm, posts, selectedId, freshIds, composing, dark, me, onMove, onSelect, flyTo } = props;
   const initial = useMemo(() => toLatLng(center), []);
 
-  const tiles = dark
-    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-    : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-
   return (
-    <div className={`map ${composing ? 'map--composing' : ''}`}>
+    <div className={`map ${composing ? 'map--composing' : ''} ${dark ? 'map--dark' : ''}`}>
       <MapContainer center={initial} zoom={14} zoomControl={false} className="map__leaflet">
+        {/* Standard OSM raster tiles (no key); warmed and dark-moded with CSS filters in styles.css. */}
         <TileLayer
-          key={tiles}
-          url={tiles}
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+          maxZoom={19}
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         <Events onMove={onMove} />
         <Flyer flyTo={flyTo} />
