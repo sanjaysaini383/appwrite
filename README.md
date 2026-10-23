@@ -136,3 +136,7 @@ src/components/       map, feed, drawer, compose sheet, heroes, inspector
 ## License
 
 MIT
+
+---
+
+Built by Sanjay Saini for the Appwrite Databases Hackathon 2026.
