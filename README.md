@@ -11,7 +11,7 @@
 
 ## Why Hearth
 
-Most people would help a neighbour if they knew someone needed it. Most people needing help would rather not post in a 400-person WhatsApp group. Hearth sits in between. You drop a pin with a small ask ("need a drill for 20 minutes") or an offer ("extra biryani, 3 portions"). Neighbours inside your radius see it appear live. One taps **I can help**, you chat, and when it's done you send them kudos. Kudos add up to a neighbourhood **Heroes** board.
+Most people would help a neighbour if they knew someone needed it. Most people needing help would rather not post in a 400-person WhatsApp group. Hearth sits right in between. You drop a pin with a small ask ("need a drill for 20 minutes") or an offer ("extra biryani, 3 portions"). Neighbours inside your radius see it appear live. One taps **I can help**, you chat, and when it's done you send them kudos. Kudos add up to a neighbourhood **Heroes** board.
 
 No email, no feed algorithm, no followers. Just a first name and a map pin.
 
