@@ -11,9 +11,9 @@
 
 ## Why Hearth
 
-Most people would help a neighbour if they knew someone needed it. Most people needing help would rather not post in a 400-person WhatsApp group. Hearth sits right in between. You drop a pin with a small ask ("need a drill for 20 minutes") or an offer ("extra biryani, 3 portions"). Neighbours inside your radius see it appear live. One taps **I can help**, you chat, and when it's done you send them kudos. Kudos add up to a neighbourhood **Heroes** board.
+Most people would help a neighbour if they knew someone needed it. Most people needing help would rather not post in a 400-person WhatsApp group. Hearth sits in between. You drop a pin with a small ask ("need a drill for 20 minutes") or an offer ("extra biryani, 3 portions"). Neighbours inside your radius see it appear live. One taps **I can help**, you chat, and when it's done you send them kudos. Kudos add up to a neighbourhood **Heroes** board.
 
-No email, no feed algorithm, no followers. Just a first name and a map pin.
+No email, no feed algorithm, no followers. Just a first name and a map.
 
 ## What makes it interesting technically
 
@@ -37,7 +37,7 @@ Hearth is built to use as much of **Appwrite TablesDB** as a real product would,
 
 ### 🔍 The Query Inspector
 
-Click **⚡ TablesDB** in the corner of the map. Every database call the page makes (queries rendered as the SDK calls that built them, timings, transaction stages, rollbacks, and Realtime pushes) streams into a live panel. This is how you can verify the table above while using the app.
+Click ** TablesDB** in the corner of the map. Every database call the page makes (queries rendered as the SDK calls that built them, timings, transaction stages, rollbacks, and Realtime pushes) streams into a live panel. This is how you can verify the table above while using the app.
 
 <p align="center"><img src="docs/screenshot-inspector.png" alt="Heroes leaderboard with the Query Inspector open" width="100%" /></p>
 
@@ -136,7 +136,3 @@ src/components/       map, feed, drawer, compose sheet, heroes, inspector
 ## License
 
 MIT
-
----
-
-Built by Sanjay Saini for the Appwrite Databases Hackathon 2026.
