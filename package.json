@@ -16,6 +16,9 @@
   },
   "license": "MIT",
   "type": "module",
+  "engines": {
+    "node": ">=20.6"
+  },
   "bugs": {
     "url": "https://github.com/sanjaysaini383/appwrite/issues"
   },
